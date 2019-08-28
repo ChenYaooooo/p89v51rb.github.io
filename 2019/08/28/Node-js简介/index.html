@@ -1,0 +1,544 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="当一个javascript应用程序启动时，该应用程序中的所有代码都被加载到内存中。无论代码是否立即执行，每个变量、函数和代码块对应用程序来说都已经是可访问可用的了。 为什么某些代码不能立即运行？尽管定义和分配一个全局变量可能会在应用程序启动时给该变量一个值，但并非所有函数都会运行，除非它们有理由这样做。其中一些函数以事件监听器的形式出现—函数对象，当一个有着匹配名字的事件被触发的时候才运行的回调函">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js简介">
+<meta property="og:url" content="http://yoursite.com/2019/08/28/Node-js简介/index.html">
+<meta property="og:site_name" content="Chen Yao">
+<meta property="og:description" content="当一个javascript应用程序启动时，该应用程序中的所有代码都被加载到内存中。无论代码是否立即执行，每个变量、函数和代码块对应用程序来说都已经是可访问可用的了。 为什么某些代码不能立即运行？尽管定义和分配一个全局变量可能会在应用程序启动时给该变量一个值，但并非所有函数都会运行，除非它们有理由这样做。其中一些函数以事件监听器的形式出现—函数对象，当一个有着匹配名字的事件被触发的时候才运行的回调函">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/client-server%20interaction.png">
+<meta property="og:image" content="http://yoursite.com/images/event%20loop.png">
+<meta property="og:updated_time" content="2019-08-28T13:44:46.974Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js简介">
+<meta name="twitter:description" content="当一个javascript应用程序启动时，该应用程序中的所有代码都被加载到内存中。无论代码是否立即执行，每个变量、函数和代码块对应用程序来说都已经是可访问可用的了。 为什么某些代码不能立即运行？尽管定义和分配一个全局变量可能会在应用程序启动时给该变量一个值，但并非所有函数都会运行，除非它们有理由这样做。其中一些函数以事件监听器的形式出现—函数对象，当一个有着匹配名字的事件被触发的时候才运行的回调函">
+<meta name="twitter:image" content="http://yoursite.com/images/client-server%20interaction.png">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Node.js简介 | Chen Yao </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">Chen Yao</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Node.js简介
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2019-08-28T21:27:35+08:00" content="2019-08-28">
+              2019-08-28
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>当一个javascript应用程序启动时，该应用程序中的所有代码都被加载到内存中。<br>无论代码是否立即执行，每个变量、函数和代码块对应用程序来说都已经是可访问可用的了。</p>
+<p>为什么某些代码不能立即运行？<br>尽管定义和分配一个全局变量可能会在应用程序启动时给该变量一个值，但并非所有函数都会运行，除非它们有理由这样做。其中一些函数以事件监听器的形式出现—函数对象，当一个有着匹配名字的事件被触发的时候才运行的回调函数。这些函数都不会被执行直到事件触发器触发事件监听器运行该回调函数。通过这种方式，node.js可以以一种特别快速、高效的方式运行应用程序。</p>
+<p>相比其他语言或者平台在每次执行命令时都需要重新编译或者运行所有的代码，nodejs只加载代码一次，然后只有当事件驱动的时候才会触发相应的函数。</p>
+<p>node.js只需要一个执行线程（由事件循环使用），只有在执行较大的任务时才需要使用其他线程。因为不必为每个传入的任务分配专门的计算机资源，node.js应用程序创建和执行任务只需要较少的处理能力。</p>
+<p>以亚马逊为例子，node.js可能使用其主线程来处理您的请求，以处理订单、发送信息进行验证，并继续处理其他用户加载网页的请求。当你的订单被处理时，会发出一个事件，触发主线程，让您知道订单已成功下达。换句话说，node.js使用异步运行部分任务，并在一个任务完成之前继续执行其他任务。node.js不会等待一个操作从开始到结束，而是注册事件监听器，当发送的任务完成时调用事件监听器。最后，node.js为您提供了一种不使用Web浏览器执行JavaScript代码的方法，您可以使用此环境设计所有类型的应用程序。大多数node.js应用程序都是Web应用程序，它们使用异步、事件驱动的特性来提供快速加载、响应的Web内容。</p>
+<p>Web服务器是Web应用程序的主干，因为它处理传入请求和返回响应。The web server is the backbone of your web application, as it handles incoming requests for data to be processed and outgoing responses. </p>
+<p><strong>关于Node.js</strong><br>因为node.js是用Google Chrome的javascript引擎（一个用来将javascript语言解释成有意义的计算机命令的工具）构建的，所以它被认为是强大的，并且能够支持将javascript作为服务器端语言。Javascript既可用于帮助网页（客户端）交互，也可用于处理传入的应用程序数据和数据库通信。（后一种工作通常保留在诸如C、Java、Python和Ruby等语言中）。开发人员现在可以只掌握JavaScript来构建一个完整的Web应用程序，而不必掌握多种语言来完成相同的任务。<br><strong>客户端v.s.服务器端</strong><br>客户端（前端）是指您编写的代码，它会让用户Web浏览器中看到某些内容。客户端代码通常包括一些用来与用户交互的javascript代码。服务器端（后端）是指用于应用程序逻辑（如何组织数据并将其保存到数据库）的代码。服务器端代码负责对登录页面上的用户进行身份验证，运行预定的任务，甚至确保客户端代码到达客户端。<br>下图中，客户端是浏览器，用户可以再浏览器中看到你的应用。服务器端是你的应用运行的地方，它会处理用户提交的数据。通常情况下，服务器端会渲染（render）客户想要的用户界面。<br><img src="/images/client-server interaction.png" alt=""><br>node.js使用单个线程操作事件循环（event loop）。线程是执行编程任务所需的计算能力和资源的集合。通常，一个线程负责启动和完成一个任务；同时运行的任务越多，需要的线程就越多。在大多数其他软件中，多个任务由计算机可以同时提供的线程池进行匹配和处理。但是，node.js一次只处理一个任务，并且只对主线程无法处理的任务使用更多线程。<br>这个过程听起来可能有点违反直觉，但在大多数不需要计算密集型任务（需要计算机大量处理能力的任务）的应用程序中，这个线程可以快速管理和执行所有任务。请参见图0.1中事件循环的简化图。当任务准备运行时，它们进入一个队列，会在事件循环的某个特定阶段进行处理。<br><img src="/images/event loop.png" alt=""></p>
+<pre><code>1. 应用程序将准备应用程序和配置的上下文
+2. 随着任务的累积，它们将排队并进入轮询阶段进行处理。
+3. 队列中的回调函数在这个阶段执行。此处创建的其他回调将返回到队列中。
+4. 在循环结束时，指定要立即运行的操作将在此处运行。
+5. 在时间间隔或超时中设置的任务将在此阶段进行评估。
+</code></pre><p>Node.js的事件循环永远在循环，监听由服务器触发的javascript事件以通知某个新任务或另一个任务的完成。随着任务数量上涨，任务将会排在队列中逐渐被事件循环执行。因此，node.js在创建监听数据进进出出的实时应用中非常流行。<br>您可以将事件循环看作是一个办公室主任。办公室主任的主要职责是处理传入的信息，任务分配和办公室相关的工作。这个办公室主任可能有一长串要完成的任务，从授权创建完整的财务报告到接听电话和布置办公室宴会装饰。由于某些任务比其他任务耗时更多，办公室经理没有义务在处理新任务之前完成任何单个任务。更好的是，她可以接听电话并将来电者转接给另一位员工，这样她就可以重新开始布置办公室宴会装饰了。<br>相似地，事件循环处理一系列任务，总是一次处理一个任务，并使用计算机的处理能力卸载一些较大的任务，这样事件循环就缩短了任务列表。在大多数其他平台上，传入任务被分配给新进程，为每个任务创建一个新的事件循环。然而，增加任务的数量，就像增加有限空间中的员工数量。您开始遇到新的问题，如成本、计算能力和共享资源。（例如，如果两名员工同时想使用电话，你会怎么做？）<br><strong>进程和线程</strong><br>需要注意的是，node.js事件循环依赖于一个线程来管理所有任务，但它不一定只使用该线程来完成每个任务。实际上，node.js的设计目的是将更大的任务传递给主机，主机可以创建新的线程和进程来操作这些任务。<br>线程是分配的计算机资源束，用于在任务中运行一系列指令。通常，线程处理的任务简单而快速。因此，node.js事件循环只需要一个线程作为所有其他任务的管理器。计算机进程使得线程可用，一些更密集的任务需要运行自己的进程。<br>一个进程也是用于执行任务的计算能力和资源束，尽管通常比线程处理更大的任务。为了创建一个线程前提是要<br>在一个进程上，这意味着每个node.js应用程序都在自己的进程上运行。<br>尽管node.js可能是单线程的，但是可以有多个进程实例并行运行，并处理传入的请求和任务。因此，node.js可以很好地扩展；它异步地调度任务，只在必要时使用额外的线程和进程，而不是为每个任务生成新的进程。为了处理任务列表需要更多的进程，对计算机的需求也会增加。node.js可以最大限度地减少并发进程的数量。</p>
+<p><strong>学习或者用Node.js的好处：</strong></p>
+<pre><code>1. 只用掌握js语言就好
+2. 如果你想连续传输数据或拥有一些聊天功能，node.js比其他平台更加突出。
+3. node.js由Google的V8 javascript解释器提供支持，这意味着它得到了广泛的支持，并有望在性能和功能方面有所增长，而且不会很快消失。
+4. 在Web开发社区中，node.js得到了广泛的应用。您可能会遇到其他开发人员，他们可能已经使用node.js开发了5年。此外，现在正在为node.js构建支持性更强的开源工具。
+</code></pre>
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/28/UiPath-Excel和DataTable/" rel="next" title="UiPath Excel和DataTable">
+                <i class="fa fa-chevron-left"></i> UiPath Excel和DataTable
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.gif"
+               alt="Berry" />
+          <p class="site-author-name" itemprop="name">Berry</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Berry</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
